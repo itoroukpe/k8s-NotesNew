@@ -15,6 +15,7 @@ This actually means that you may never need to manipulate ReplicaSet objects: us
 
 Example
 controllers/frontend.yaml Copy controllers/frontend.yaml to clipboard
+```
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -36,21 +37,25 @@ spec:
       containers:
       - name: php-redis
         image: gcr.io/google_samples/gb-frontend:v3
+```
 Saving this manifest into frontend.yaml and submitting it to a Kubernetes cluster will create the defined ReplicaSet and the Pods that it manages.
 
 kubectl apply -f https://kubernetes.io/examples/controllers/frontend.yaml
 You can then get the current ReplicaSets deployed:
-
+```
 kubectl get rs
+```
 And see the frontend one you created:
-
+```
 NAME       DESIRED   CURRENT   READY   AGE
 frontend   3         3         3       6s
+```
 You can also check on the state of the ReplicaSet:
-
+```
 kubectl describe rs/frontend
+```
 And you will see output similar to:
-
+```
 Name:         frontend
 Namespace:    default
 Selector:     tier=frontend
@@ -76,20 +81,24 @@ Events:
   Normal  SuccessfulCreate  117s  replicaset-controller  Created pod: frontend-wtsmm
   Normal  SuccessfulCreate  116s  replicaset-controller  Created pod: frontend-b2zdv
   Normal  SuccessfulCreate  116s  replicaset-controller  Created pod: frontend-vcmts
+```
 And lastly you can check for the Pods brought up:
-
+```
 kubectl get pods
+```
 You should see Pod information similar to:
-
+``
 NAME             READY   STATUS    RESTARTS   AGE
 frontend-b2zdv   1/1     Running   0          6m36s
 frontend-vcmts   1/1     Running   0          6m36s
 frontend-wtsmm   1/1     Running   0          6m36s
+```
 You can also verify that the owner reference of these pods is set to the frontend ReplicaSet. To do this, get the yaml of one of the Pods running:
-
+```
 kubectl get pods frontend-b2zdv -o yaml
+```
 The output will look similar to this, with the frontend ReplicaSet's info set in the metadata's ownerReferences field:
-
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -106,13 +115,16 @@ metadata:
     kind: ReplicaSet
     name: frontend
     uid: f391f6db-bb9b-4c09-ae74-6a1f77f3d5cf
+    
 ...
+```
 Non-Template Pod acquisitions
 While you can create bare Pods with no problems, it is strongly recommended to make sure that the bare Pods do not have labels which match the selector of one of your ReplicaSets. The reason for this is because a ReplicaSet is not limited to owning Pods specified by its template-- it can acquire other Pods in the manner specified in the previous sections.
 
 Take the previous frontend ReplicaSet example, and the Pods specified in the following manifest:
 
 pods/pod-rs.yaml Copy pods/pod-rs.yaml to clipboard
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -136,39 +148,48 @@ spec:
   containers:
   - name: hello2
     image: gcr.io/google-samples/hello-app:1.0
+
+   ``` 
 As those Pods do not have a Controller (or any object) as their owner reference and match the selector of the frontend ReplicaSet, they will immediately be acquired by it.
 
 Suppose you create the Pods after the frontend ReplicaSet has been deployed and has set up its initial Pod replicas to fulfill its replica count requirement:
-
+```
 kubectl apply -f https://kubernetes.io/examples/pods/pod-rs.yaml
+```
 The new Pods will be acquired by the ReplicaSet, and then immediately terminated as the ReplicaSet would be over its desired count.
 
 Fetching the Pods:
-
+```
 kubectl get pods
+```
 The output shows that the new Pods are either already terminated, or in the process of being terminated:
-
+```
 NAME             READY   STATUS        RESTARTS   AGE
 frontend-b2zdv   1/1     Running       0          10m
 frontend-vcmts   1/1     Running       0          10m
 frontend-wtsmm   1/1     Running       0          10m
 pod1             0/1     Terminating   0          1s
 pod2             0/1     Terminating   0          1s
+```
 If you create the Pods first:
-
+```
 kubectl apply -f https://kubernetes.io/examples/pods/pod-rs.yaml
+```
 And then create the ReplicaSet however:
-
+```
 kubectl apply -f https://kubernetes.io/examples/controllers/frontend.yaml
+```
 You shall see that the ReplicaSet has acquired the Pods and has only created new ones according to its spec until the number of its new Pods and the original matches its desired count. As fetching the Pods:
-
+```
 kubectl get pods
+```
 Will reveal in its output:
-
+```
 NAME             READY   STATUS    RESTARTS   AGE
 frontend-hmmj2   1/1     Running   0          9s
 pod1             1/1     Running   0          36s
 pod2             1/1     Running   0          36s
+```
 In this manner, a ReplicaSet can own a non-homogeneous set of Pods
 
 Writing a ReplicaSet manifest
@@ -201,18 +222,21 @@ Deleting a ReplicaSet and its Pods
 To delete a ReplicaSet and all of its Pods, use kubectl delete. The Garbage collector automatically deletes all of the dependent Pods by default.
 
 When using the REST API or the client-go library, you must set propagationPolicy to Background or Foreground in the -d option. For example:
-
+```
 kubectl proxy --port=8080
 curl -X DELETE  'localhost:8080/apis/apps/v1/namespaces/default/replicasets/frontend' \
   -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Foreground"}' \
   -H "Content-Type: application/json"
+  ```
 Deleting just a ReplicaSet
 You can delete a ReplicaSet without affecting any of its Pods using kubectl delete with the --cascade=orphan option. When using the REST API or the client-go library, you must set propagationPolicy to Orphan. For example:
 
+```
 kubectl proxy --port=8080
 curl -X DELETE  'localhost:8080/apis/apps/v1/namespaces/default/replicasets/frontend' \
   -d '{"kind":"DeleteOptions","apiVersion":"v1","propagationPolicy":"Orphan"}' \
   -H "Content-Type: application/json"
+  ```
 Once the original is deleted, you can create a new ReplicaSet to replace it. As long as the old and new .spec.selector are the same, then the new one will adopt the old Pods. However, it will not make any effort to make existing Pods match a new, different pod template. To update Pods to a new spec in a controlled way, use a Deployment, as ReplicaSets do not support a rolling update directly.
 
 Isolating Pods from a ReplicaSet
@@ -249,6 +273,7 @@ ReplicaSet as a Horizontal Pod Autoscaler Target
 A ReplicaSet can also be a target for Horizontal Pod Autoscalers (HPA). That is, a ReplicaSet can be auto-scaled by an HPA. Here is an example HPA targeting the ReplicaSet we created in the previous example.
 
 controllers/hpa-rs.yaml Copy controllers/hpa-rs.yaml to clipboard
+```
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
@@ -260,12 +285,15 @@ spec:
   minReplicas: 3
   maxReplicas: 10
   targetCPUUtilizationPercentage: 50
+  ```
 Saving this manifest into hpa-rs.yaml and submitting it to a Kubernetes cluster should create the defined HPA that autoscales the target ReplicaSet depending on the CPU usage of the replicated Pods.
-
+```
 kubectl apply -f https://k8s.io/examples/controllers/hpa-rs.yaml
+```
 Alternatively, you can use the kubectl autoscale command to accomplish the same (and it's easier!)
-
+```
 kubectl autoscale rs frontend --max=10 --min=3 --cpu-percent=50
+```
 Alternatives to ReplicaSet
 Deployment (recommended)
 Deployment is an object which can own ReplicaSets and update them and their Pods via declarative, server-side rolling updates. While ReplicaSets can be used independently, today they're mainly used by Deployments as a mechanism to orchestrate Pod creation, deletion and updates. When you use Deployments you don't have to worry about managing the ReplicaSets that they create. Deployments own and manage their ReplicaSets. As such, it is recommended to use Deployments when you want ReplicaSets.
