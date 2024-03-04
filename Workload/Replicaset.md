@@ -87,13 +87,14 @@ And lastly you can check for the Pods brought up:
 kubectl get pods
 ```
 You should see Pod information similar to:
-``
+
 NAME             READY   STATUS    RESTARTS   AGE
 frontend-b2zdv   1/1     Running   0          6m36s
 frontend-vcmts   1/1     Running   0          6m36s
 frontend-wtsmm   1/1     Running   0          6m36s
-```
+
 You can also verify that the owner reference of these pods is set to the frontend ReplicaSet. To do this, get the yaml of one of the Pods running:
+
 ```
 kubectl get pods frontend-b2zdv -o yaml
 ```
