@@ -39,9 +39,8 @@ spec:
         image: gcr.io/google_samples/gb-frontend:v3
 ```
 Saving this manifest into frontend.yaml and submitting it to a Kubernetes cluster will create the defined ReplicaSet and the Pods that it manages.
-```
 kubectl apply -f https://kubernetes.io/examples/controllers/frontend.yaml
-```
+
 You can then get the current ReplicaSets deployed:
 ```
 kubectl get rs
