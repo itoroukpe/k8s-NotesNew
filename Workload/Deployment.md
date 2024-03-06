@@ -950,28 +950,28 @@ This will create a Deployment resource named `juice-shop` in your Kubernetes clu
 
 ## Online Boutique App
 
-Below is a Kubernetes manifest file for deploying the Juice Shop application using a Deployment resource:
+Here's a Kubernetes manifest file for deploying the Online Boutique application using a Deployment resource:
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: juice-shop
+  name: online-boutique
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: juice-shop
+      app: online-boutique
   template:
     metadata:
       labels:
-        app: juice-shop
+        app: online-boutique
     spec:
       containers:
-      - name: juice-shop
-        image: bkimminich/juice-shop:latest
+      - name: online-boutique
+        image: gcr.io/google-samples/microservices-demo/frontend:v0.1.3
         ports:
-        - containerPort: 3000
+        - containerPort: 8080
 ```
 
 Explanation:
@@ -981,22 +981,22 @@ Explanation:
 - `spec`: Specifies the desired state for the Deployment.
   - `replicas`: Specifies the number of replicas (pods) of the application to run, in this case, `1`.
   - `selector`: Specifies how the Deployment selects which pods to manage.
-    - `matchLabels`: Specifies that pods managed by this Deployment must have the label `app: juice-shop`.
+    - `matchLabels`: Specifies that pods managed by this Deployment must have the label `app: online-boutique`.
   - `template`: Specifies the pod template used by the Deployment.
     - `metadata`: Contains metadata about the pod template.
       - `labels`: Specifies labels for pods created from this template.
-        - `app: juice-shop`: Labels pods created from this template with `app: juice-shop`.
+        - `app: online-boutique`: Labels pods created from this template with `app: online-boutique`.
     - `spec`: Specifies the specification for the pods created from this template.
       - `containers`: Specifies the containers to run in the pod.
-        - `name`: Specifies the name of the container, in this case, `juice-shop`.
-        - `image`: Specifies the Docker image to use for the container, in this case, `bkimminich/juice-shop:latest`.
+        - `name`: Specifies the name of the container, in this case, `online-boutique`.
+        - `image`: Specifies the Docker image to use for the container, in this case, `gcr.io/google-samples/microservices-demo/frontend:v0.1.3`.
         - `ports`: Specifies the ports that the container exposes.
-          - `containerPort`: Specifies the port that the application inside the container is listening on, in this case, `3000`.
+          - `containerPort`: Specifies the port that the application inside the container is listening on, in this case, `8080`.
 
-Save this YAML manifest to a file (e.g., `juice-shop-deployment.yaml`) and apply it to your Kubernetes cluster using the `kubectl apply` command:
+Save this YAML manifest to a file (e.g., `online-boutique-deployment.yaml`) and apply it to your Kubernetes cluster using the `kubectl apply` command:
 
 ```bash
-kubectl apply -f juice-shop-deployment.yaml
+kubectl apply -f online-boutique-deployment.yaml
 ```
 
-This will create a Deployment resource named `juice-shop` in your Kubernetes cluster, which will manage pods running the Juice Shop application.
+This will create a Deployment resource named `online-boutique` in your Kubernetes cluster, which will manage pods running the Online Boutique application. Adjust the image tag (`v0.1.3`) according to the version you want to deploy.
