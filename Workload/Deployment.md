@@ -895,15 +895,14 @@ More specifically, setting this field to zero means that all old ReplicaSets wit
 Paused
 .spec.paused is an optional boolean field for pausing and resuming a Deployment. The only difference between a paused Deployment and one that is not paused, is that any changes into the PodTemplateSpec of the paused Deployment will not trigger new rollouts as long as it is paused. A Deployment is not paused by default when it is created.
 
-# Juice Shop App
-
-Below is a Kubernetes manifest file for deploying the Juice Shop application using a Deployment resource:
+## Juice Shop App
+Below is an example Kubernetes manifest file for deploying a Juice Shop image using a Deployment resource and exposing it with a NodePort service:
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: juice-shop
+  name: juice-shop-deployment
 spec:
   replicas: 1
   selector:
@@ -915,42 +914,34 @@ spec:
         app: juice-shop
     spec:
       containers:
-      - name: juice-shop
-        image: bkimminich/juice-shop:latest
-        ports:
-        - containerPort: 3000
+        - name: juice-shop
+          image: bkimminich/juice-shop:latest
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: juice-shop-service
+spec:
+  type: NodePort
+  selector:
+    app: juice-shop
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+      nodePort: 30000
 ```
 
-Explanation:
-- `apiVersion`: Specifies the API version being used, in this case, `apps/v1`.
-- `kind`: Specifies the type of Kubernetes resource being created, in this case, `Deployment`.
-- `metadata`: Contains metadata about the Deployment, including the name.
-- `spec`: Specifies the desired state for the Deployment.
-  - `replicas`: Specifies the number of replicas (pods) of the application to run, in this case, `1`.
-  - `selector`: Specifies how the Deployment selects which pods to manage.
-    - `matchLabels`: Specifies that pods managed by this Deployment must have the label `app: juice-shop`.
-  - `template`: Specifies the pod template used by the Deployment.
-    - `metadata`: Contains metadata about the pod template.
-      - `labels`: Specifies labels for pods created from this template.
-        - `app: juice-shop`: Labels pods created from this template with `app: juice-shop`.
-    - `spec`: Specifies the specification for the pods created from this template.
-      - `containers`: Specifies the containers to run in the pod.
-        - `name`: Specifies the name of the container, in this case, `juice-shop`.
-        - `image`: Specifies the Docker image to use for the container, in this case, `bkimminich/juice-shop:latest`.
-        - `ports`: Specifies the ports that the container exposes.
-          - `containerPort`: Specifies the port that the application inside the container is listening on, in this case, `3000`.
+### This manifest file defines:
+1. A Deployment resource named `juice-shop-deployment` with one replica, using the `bkimminich/juice-shop:latest` image. The container listens on port 3000.
+2. A NodePort Service resource named `juice-shop-service` to expose the Juice Shop application outside the cluster. The service listens on port 80 and forwards traffic to port 3000 of the pods. The `nodePort` is set to 30000, which means the service will be accessible on any node's IP address at port 30000.
 
-Save this YAML manifest to a file (e.g., `juice-shop-deployment.yaml`) and apply it to your Kubernetes cluster using the `kubectl apply` command:
+You can save this manifest to a file (e.g., `juice-shop.yaml`) and apply it to your Kubernetes cluster using the `kubectl apply -f juice-shop.yaml` command. After applying the manifest, the Juice Shop application will be deployed and accessible via the NodePort service on port 30000 of any node in your Kubernetes cluster.
 
-```bash
-kubectl apply -f juice-shop-deployment.yaml
-```
-
-This will create a Deployment resource named `juice-shop` in your Kubernetes cluster, which will manage pods running the Juice Shop application.
-
-## Online Boutique App
-
-Here's a Kubernetes manifest file for deploying the Online Boutique application using a Deployment resource:
+## Online Boutique Shop
+Below is a Kubernetes manifest file for deploying the Online Boutique application using a Deployment resource and exposing it via a NodePort Service:
 
 ```yaml
 apiVersion: apps/v1
@@ -972,26 +963,31 @@ spec:
         image: gcr.io/google-samples/microservices-demo/frontend:v0.1.3
         ports:
         - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: online-boutique-service
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30001
+  selector:
+    app: online-boutique
 ```
 
-Explanation:
-- `apiVersion`: Specifies the API version being used, in this case, `apps/v1`.
-- `kind`: Specifies the type of Kubernetes resource being created, in this case, `Deployment`.
-- `metadata`: Contains metadata about the Deployment, including the name.
-- `spec`: Specifies the desired state for the Deployment.
-  - `replicas`: Specifies the number of replicas (pods) of the application to run, in this case, `1`.
-  - `selector`: Specifies how the Deployment selects which pods to manage.
-    - `matchLabels`: Specifies that pods managed by this Deployment must have the label `app: online-boutique`.
-  - `template`: Specifies the pod template used by the Deployment.
-    - `metadata`: Contains metadata about the pod template.
-      - `labels`: Specifies labels for pods created from this template.
-        - `app: online-boutique`: Labels pods created from this template with `app: online-boutique`.
-    - `spec`: Specifies the specification for the pods created from this template.
-      - `containers`: Specifies the containers to run in the pod.
-        - `name`: Specifies the name of the container, in this case, `online-boutique`.
-        - `image`: Specifies the Docker image to use for the container, in this case, `gcr.io/google-samples/microservices-demo/frontend:v0.1.3`.
-        - `ports`: Specifies the ports that the container exposes.
-          - `containerPort`: Specifies the port that the application inside the container is listening on, in this case, `8080`.
+### Explanation:
+- `Deployment` resource:
+  - Specifies the deployment of the Online Boutique application.
+  - Uses the `gcr.io/google-samples/microservices-demo/frontend:v0.1.3` image.
+  - Exposes port `8080` within the container.
+- `Service` resource:
+  - Specifies a NodePort Service to expose the Online Boutique application externally.
+  - Binds port `80` of the service to port `8080` of the pods.
+  - Uses `nodePort` `30001` to expose the service on the nodes.
+  - Selects pods with the label `app: online-boutique`.
 
 Save this YAML manifest to a file (e.g., `online-boutique-deployment.yaml`) and apply it to your Kubernetes cluster using the `kubectl apply` command:
 
@@ -999,4 +995,4 @@ Save this YAML manifest to a file (e.g., `online-boutique-deployment.yaml`) and 
 kubectl apply -f online-boutique-deployment.yaml
 ```
 
-This will create a Deployment resource named `online-boutique` in your Kubernetes cluster, which will manage pods running the Online Boutique application. Adjust the image tag (`v0.1.3`) according to the version you want to deploy.
+This will create a Deployment resource named `online-boutique` and a NodePort Service named `online-boutique-service`. The Online Boutique application will be accessible externally via the NodePort on the nodes in your Kubernetes cluster.
