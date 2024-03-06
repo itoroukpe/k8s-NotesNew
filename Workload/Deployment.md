@@ -63,12 +63,14 @@ Create one container and name it nginx using the .spec.template.spec.containers[
 Before you begin, make sure your Kubernetes cluster is up and running. Follow the steps given below to create the above Deployment:
 
 Create the Deployment by running the following command:
+
 ```
 kubectl apply -f https://k8s.io/examples/controllers/nginx-deployment.yaml
 ```
 Run kubectl get deployments to check if the Deployment was created.
 
 If the Deployment is still being created, the output is similar to the following:
+
 ```
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-deployment   0/3     0            0           1s
@@ -89,6 +91,7 @@ The output is similar to:
 Waiting for rollout to finish: 2 out of 3 new replicas have been updated...
 deployment "nginx-deployment" successfully rolled out
 Run the kubectl get deployments again a few seconds later. The output is similar to this:
+
 ```
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-deployment   3/3     3            3           18s
@@ -96,6 +99,7 @@ nginx-deployment   3/3     3            3           18s
 Notice that the Deployment has created all three replicas, and all replicas are up-to-date (they contain the latest Pod template) and available.
 
 To see the ReplicaSet (rs) created by the Deployment, run kubectl get rs. The output is similar to this:
+
 ```
 NAME                          DESIRED   CURRENT   READY   AGE
 nginx-deployment-75675f5897   3         3         3       18s
@@ -112,7 +116,7 @@ Notice that the name of the ReplicaSet is always formatted as [DEPLOYMENT-NAME]-
 The HASH string is the same as the pod-template-hash label on the ReplicaSet.
 
 To see the labels automatically generated for each Pod, run kubectl get pods --show-labels. The output is similar to:
-`
+```
 NAME                                READY     STATUS    RESTARTS   AGE       LABELS
 nginx-deployment-75675f5897-7ci7o   1/1       Running   0          18s       app=nginx,pod-template-hash=75675f5897
 nginx-deployment-75675f5897-kzszj   1/1       Running   0          18s       app=nginx,pod-template-hash=75675f5897
