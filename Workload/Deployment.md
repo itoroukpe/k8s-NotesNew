@@ -894,3 +894,109 @@ More specifically, setting this field to zero means that all old ReplicaSets wit
 
 Paused
 .spec.paused is an optional boolean field for pausing and resuming a Deployment. The only difference between a paused Deployment and one that is not paused, is that any changes into the PodTemplateSpec of the paused Deployment will not trigger new rollouts as long as it is paused. A Deployment is not paused by default when it is created.
+
+# Juice Shop App
+
+Below is a Kubernetes manifest file for deploying the Juice Shop application using a Deployment resource:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: juice-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: juice-shop
+  template:
+    metadata:
+      labels:
+        app: juice-shop
+    spec:
+      containers:
+      - name: juice-shop
+        image: bkimminich/juice-shop:latest
+        ports:
+        - containerPort: 3000
+```
+
+Explanation:
+- `apiVersion`: Specifies the API version being used, in this case, `apps/v1`.
+- `kind`: Specifies the type of Kubernetes resource being created, in this case, `Deployment`.
+- `metadata`: Contains metadata about the Deployment, including the name.
+- `spec`: Specifies the desired state for the Deployment.
+  - `replicas`: Specifies the number of replicas (pods) of the application to run, in this case, `1`.
+  - `selector`: Specifies how the Deployment selects which pods to manage.
+    - `matchLabels`: Specifies that pods managed by this Deployment must have the label `app: juice-shop`.
+  - `template`: Specifies the pod template used by the Deployment.
+    - `metadata`: Contains metadata about the pod template.
+      - `labels`: Specifies labels for pods created from this template.
+        - `app: juice-shop`: Labels pods created from this template with `app: juice-shop`.
+    - `spec`: Specifies the specification for the pods created from this template.
+      - `containers`: Specifies the containers to run in the pod.
+        - `name`: Specifies the name of the container, in this case, `juice-shop`.
+        - `image`: Specifies the Docker image to use for the container, in this case, `bkimminich/juice-shop:latest`.
+        - `ports`: Specifies the ports that the container exposes.
+          - `containerPort`: Specifies the port that the application inside the container is listening on, in this case, `3000`.
+
+Save this YAML manifest to a file (e.g., `juice-shop-deployment.yaml`) and apply it to your Kubernetes cluster using the `kubectl apply` command:
+
+```bash
+kubectl apply -f juice-shop-deployment.yaml
+```
+
+This will create a Deployment resource named `juice-shop` in your Kubernetes cluster, which will manage pods running the Juice Shop application.
+
+## Online Boutique App
+
+Below is a Kubernetes manifest file for deploying the Juice Shop application using a Deployment resource:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: juice-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: juice-shop
+  template:
+    metadata:
+      labels:
+        app: juice-shop
+    spec:
+      containers:
+      - name: juice-shop
+        image: bkimminich/juice-shop:latest
+        ports:
+        - containerPort: 3000
+```
+
+Explanation:
+- `apiVersion`: Specifies the API version being used, in this case, `apps/v1`.
+- `kind`: Specifies the type of Kubernetes resource being created, in this case, `Deployment`.
+- `metadata`: Contains metadata about the Deployment, including the name.
+- `spec`: Specifies the desired state for the Deployment.
+  - `replicas`: Specifies the number of replicas (pods) of the application to run, in this case, `1`.
+  - `selector`: Specifies how the Deployment selects which pods to manage.
+    - `matchLabels`: Specifies that pods managed by this Deployment must have the label `app: juice-shop`.
+  - `template`: Specifies the pod template used by the Deployment.
+    - `metadata`: Contains metadata about the pod template.
+      - `labels`: Specifies labels for pods created from this template.
+        - `app: juice-shop`: Labels pods created from this template with `app: juice-shop`.
+    - `spec`: Specifies the specification for the pods created from this template.
+      - `containers`: Specifies the containers to run in the pod.
+        - `name`: Specifies the name of the container, in this case, `juice-shop`.
+        - `image`: Specifies the Docker image to use for the container, in this case, `bkimminich/juice-shop:latest`.
+        - `ports`: Specifies the ports that the container exposes.
+          - `containerPort`: Specifies the port that the application inside the container is listening on, in this case, `3000`.
+
+Save this YAML manifest to a file (e.g., `juice-shop-deployment.yaml`) and apply it to your Kubernetes cluster using the `kubectl apply` command:
+
+```bash
+kubectl apply -f juice-shop-deployment.yaml
+```
+
+This will create a Deployment resource named `juice-shop` in your Kubernetes cluster, which will manage pods running the Juice Shop application.
